@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: genkernel
 .\"    Author: [see the "AUTHORS" section]
-.\" Generator: DocBook XSL Stylesheets v1.76.0 <http://docbook.sf.net/>
-.\"      Date: 05/26/2011
-.\"    Manual: genkernel 3.4.15-r1-funtoo
-.\"    Source: genkernel 3.4.15-r1-funtoo
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 09/16/2011
+.\"    Manual: genkernel 3.4.18-r1-funtoo
+.\"    Source: genkernel 3.4.18-r1-funtoo
 .\"  Language: English
 .\"
-.TH "GENKERNEL" "8" "05/26/2011" "genkernel 3\&.4\&.15\-r1\-funt" "genkernel 3\&.4\&.15\-r1\-funt"
+.TH "GENKERNEL" "8" "09/16/2011" "genkernel 3\&.4\&.18\-r1\-funt" "genkernel 3\&.4\&.18\-r1\-funt"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -253,6 +253,18 @@ CROSS_COMPILE kernel variable\&.
 GNU Make to use for the kernel compilation\&.
 .RE
 .PP
+\fB\-\-kernel\-target\fR=<t>
+.RS 4
+Override default make target (bzImage), note that values like
+\fB\-\-kernel\-target=\fR
+are also valid (useful for Xen based kernel sources)
+.RE
+.PP
+\fB\-\-kernel\-binary\fR=<path>
+.RS 4
+Override default kernel binary path (arch/foo/boot/bar)
+.RE
+.PP
 \fB\-\-utils\-cc\fR=<compiler>
 .RS 4
 Compiler to use for utilities\&.
@@ -325,11 +337,6 @@ Force keymap selection at boot\&.
 \fB\-\-no\-keymap\fR
 .RS 4
 Disables keymap selection at boot\&.
-.RE
-.PP
-\fB\-\-evms\fR
-.RS 4
-Add in EVMS support from static binaries if they exist on the system: you should run "emerge evms" first (in the host system)\&.
 .RE
 .PP
 \fB\-\-lvm\fR
@@ -481,7 +488,7 @@ This option is only valid if kerncache is defined If there is a valid kerncache 
 .PP
 \fB\-\-initramfs\-overlay\fR=<dir>
 .RS 4
-Directory structure to include in the initramfs, only available on 2\&.6 kernels
+Directory structure to include in the initramfs, only available on >=2\&.6 kernels
 .RE
 .PP
 \fB\-\-firmware\fR
@@ -560,17 +567,22 @@ Same as root_keydev for swap\&.
 Set this to silent all the output related to the cryptographic software, and in case your encrypted device isn\(cqt open with the key, it opens a shell in the initrd quietly\&.
 .RE
 .PP
-\fBdodmraid\fR=<\&...>
+\fBdodmraid\fR[=<\&...>]
 .RS 4
-Passes arguments to dmraid on bootup\&.
+Activate Device\-Mapper RAID and (optionally) pass arguments to it\&.
 .RE
 .PP
 \fBreal_init\fR=<\&...>
 .RS 4
+Override location of init script, default is "/sbin/init"\&.
+.RE
+.PP
+\fBinit_opts\fR=<\&...>
+.RS 4
 Passes arguments to init on bootup\&.
 .RE
 .PP
-\fBscandelay\fR=<\&...>
+\fBscandelay\fR[=<\&...>]
 .RS 4
 Pauses for 10 seconds before running devfsd if no argument is specified; otherwise pauses for the number of specified seconds\&.
 .RE
@@ -585,14 +597,20 @@ Normally used to tell the kernel that it should start a network interface\&. If 
 If present, the initrd will try to mount a livecd from that location\&. Otherwise the location will be deduced from the DCHP request (option root\-path)
 .RE
 .PP
-\fBdoevms\fR
-.RS 4
-Activate EVMS volumes on bootup
-.RE
-.PP
 \fBdolvm\fR
 .RS 4
 Activate LVM volumes on bootup
+.RE
+.PP
+\fBlvmraid\fR=<\&...>
+.RS 4
+Specify RAID devices to set up before the activation of LVM volumes\&. Implies option
+\fBdolvm\fR\&.
+.RE
+.PP
+\fBdomdadm\fR
+.RS 4
+Scan for RAID arrays on bootup
 .RE
 .PP
 \fBdoscsi\fR
@@ -619,6 +637,116 @@ please see
 .RS 4
 Use keymap\&. Usage of
 \fBkeymap\fR= implies this option, already\&.
+.RE
+.PP
+\fBrootfstype\fR=<\&...>
+.RS 4
+Specify the file system type to mount the real root filesystem as\&. This can be useful when support for ext2/ext3/ext4 are in competition\&. Default is "auto"\&.
+.RE
+.PP
+\fBdocache\fR, \fBnocache\fR
+.RS 4
+Enables/disables caching of CD contents in RAM\&.
+.RE
+.PP
+\fBroot\fR=<\&...>
+.RS 4
+Omit or specify as "/dev/ram0"\&. For other values be sure to know what you\(cqre doing\&.
+.RE
+.PP
+\fBsubdir\fR=<\&...>
+.RS 4
+switch_root into "<CHROOT>/<SUBDIR>" instead of "<CHROOT>/"\&. <CHROOT> is "/newroot" (or "/union") usually\&.
+.RE
+.PP
+\fBdebug\fR
+.RS 4
+Drop into a debug shell early in the process\&.
+.RE
+.PP
+\fBnoload\fR=<\&...>
+.RS 4
+List of modules to skip loading\&. Separate using commas or spaces\&.
+.RE
+.PP
+\fBnodetect\fR
+.RS 4
+Skipping scanning modules using "modprobe <MODULE> \-n"\&. Use
+\fBdoload=\fR
+for specifying a whitelist of exceptions\&.
+.RE
+.PP
+\fBdoload\fR=<\&...>
+.RS 4
+List of modules to load despite
+\fBnodetect\fR\&.
+.RE
+.PP
+\fBdomodules\fR, \fBnomodules\fR
+.RS 4
+Enables/disables loading of modules in general\&.
+.RE
+.PP
+\fBCONSOLE\fR=<\&...>, \fBconsole\fR=<\&...>
+.RS 4
+Override location of console, default is "/dev/console"\&.
+.RE
+.PP
+\fBpart\fR=<\&...>
+.RS 4
+Specify part for mdadm to start\&. This is the relevant code in mdstart:
+.RE
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+    fd = open("/dev/md<MD_NUMBER>", 0, 0);
+    ioctl(fd, RAID_AUTORUN, <MDPART>);
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fBiscsi_initiatorname\fR=<\&...>, \fBiscsi_target\fR=<\&...>, \fBiscsi_tgpt\fR=<\&...>, \fBiscsi_address\fR=<\&...>, \fBiscsi_port\fR=<\&...>, \fBiscsi_username\fR=<\&...>, \fBiscsi_password\fR=<\&...>, \fBiscsi_username_in\fR=<\&...>, \fBiscsi_password_in\fR=<\&...>, \fBiscsi_debug\fR=<\&...>, \fBiscsi_noibft\fR
+.RS 4
+Specify iSCSI parameters\&.
+.RE
+.PP
+\fBunionfs\fR, \fBnounionfs\fR
+.RS 4
+Enables/disables UnionFS\&.
+.RE
+.PP
+\fBaufs\fR
+.RS 4
+Enables support for AUFS2 (if available in the kernel)\&.
+.RE
+.PP
+\fBreal_rootflags\fR=<\&...>
+.RS 4
+Additional flags to mount the real root system with\&. For example
+\fBreal_rootflags\fR=noatime would make "\-o ro,noatime"\&.
+.RE
+.PP
+\fBreal_resume\fR=<\&...>, \fBresume\fR=<\&...>, \fBnoresume\fR
+.RS 4
+TO BE DOCUMENTED
+.RE
+.PP
+\fBcdroot\fR[=<\&...>], \fBcdroot_type\fR=<\&...>
+.RS 4
+TO BE DOCUMENTED
+.RE
+.PP
+\fBloop\fR=<\&...>, \fBlooptype\fR=<\&...>
+.RS 4
+TO BE DOCUMENTED
+.RE
+.PP
+\fBisoboot\fR=<\&...>
+.RS 4
+TO BE DOCUMENTED
 .RE
 .SH "NETBOOTING"
 .sp
