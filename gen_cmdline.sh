@@ -142,6 +142,10 @@ usage() {
 
 parse_cmdline() {
 	case "$*" in
+		--extraversion=*)
+			CMD_EXTRAVERSION=`parse_opt "$*"`
+			print_info 2 "CMD_EXTRAVERSION: ${CMD_EXTRAVERSION}"
+			;;
 		--kernel-cc=*)
 			CMD_KERNEL_CC=`parse_opt "$*"`
 			print_info 2 "CMD_KERNEL_CC: ${CMD_KERNEL_CC}"
