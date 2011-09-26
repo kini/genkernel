@@ -592,7 +592,7 @@ create_initramfs() {
 	print_info 1 "initramfs: >> Initializing..."
 
 	# Create empty cpio
-	CPIO="${TMPDIR}/initramfs-${KV}"
+	CPIO="${TMPDIR}/initramfs"
 	echo | cpio ${CPIO_ARGS} -F "${CPIO}" 2>/dev/null \
 		|| gen_die "Could not create empty cpio at ${CPIO}"
 
@@ -636,18 +636,13 @@ create_initramfs() {
 
 	if isTrue "${INTEGRATED_INITRAMFS}"
 	then
-		mv ${TMPDIR}/initramfs-${KV} ${TMPDIR}/initramfs-${KV}.cpio.gz
+		mv ${TMPDIR}/initramfs ${TMPDIR}/initramfs.cpio.gz
 		sed -i '/^.*CONFIG_INITRAMFS_SOURCE=.*$/d' ${BUILD_DST}/.config
-		echo -e "CONFIG_INITRAMFS_SOURCE=\"${TMPDIR}/initramfs-${KV}.cpio.gz\"\nCONFIG_INITRAMFS_ROOT_UID=0\nCONFIG_INITRAMFS_ROOT_GID=0" >> ${BUILD_DST}/.config
+		echo -e "CONFIG_INITRAMFS_SOURCE=\"${TMPDIR}/initramfs.cpio.gz\"\nCONFIG_INITRAMFS_ROOT_UID=0\nCONFIG_INITRAMFS_ROOT_GID=0" >> ${BUILD_DST}/.config
 	fi
 
-	if ! isTrue "${CMD_NOINSTALL}"
+	if ! isTrue "${INTEGRATED_INITRAMFS}"
 	then
-		if ! isTrue "${INTEGRATED_INITRAMFS}"
-		then
-			copy_image_with_preserve "initramfs" \
-				"${TMPDIR}/initramfs-${KV}" \
-				"initramfs-${FULLNAME}"
-		fi
+		copy_image "${TMPDIR}/initramfs"
 	fi
 }

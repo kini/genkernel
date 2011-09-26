@@ -33,6 +33,10 @@ compile_kernel_args() {
 	then
 		ARGS="${ARGS} O=\"${BUILD_DST}\""
 	fi
+	if [ -n "$BUILD_EXTRAVERSION" ]
+	then
+		ARGS="${ARGS} EXTRAVERSION=\"${BUILD_EXTRAVERSION}\""
+	fi
 	echo -n "${ARGS}"
 }
 
@@ -344,32 +348,11 @@ compile_kernel() {
 		gen_die "Cannot locate kernel binary"
 	fi
 
-	if ! isTrue "${CMD_NOINSTALL}"
+	copy_image "${tmp_kernel_binary}"
+	copy_image "${BUILD_DST}/System.map"
+	if isTrue "${GENZIMAGE}"
 	then
-		copy_image_with_preserve "kernel" \
-			"${tmp_kernel_binary}" \
-			"kernel-${FULLNAME}"
-
-		copy_image_with_preserve "System.map" \
-			"${BUILD_DST}/System.map" \
-			"System.map-${FULLNAME}"
-
-		if isTrue "${GENZIMAGE}"
-		then
-			copy_image_with_preserve "kernelz" \
-				"${tmp_kernel_binary2}" \
-				"kernelz-${KV}"
-		fi
-	else
-		cp "${tmp_kernel_binary}" "${TMPDIR}/kernel-${FULLNAME}" ||
-			gen_die "Could not copy the kernel binary to ${TMPDIR}!"
-		cp "System.map" "${TMPDIR}/System.map-${FULLNAME}" ||
-			gen_die "Could not copy System.map to ${TMPDIR}!"
-		if isTrue "${GENZIMAGE}"
-		then
-			cp "${tmp_kernel_binary2}" "${TMPDIR}/kernelz-${KV}" ||
-				gen_die "Could not copy the kernelz binary to ${TMPDIR}!"
-		fi
+		copy_image "${tmp_kernel_binary2}"
 	fi
 }
 

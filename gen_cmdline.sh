@@ -37,14 +37,13 @@ longusage() {
   echo "	--oldconfig		Implies --no-clean and runs a 'make oldconfig'"
   echo "	--splash		Install framebuffer splash support into initramfs"
   echo "	--no-splash		Do not install framebuffer splash"
-  echo "	--install		Install the kernel after building"
-  echo "	--no-install		Do not install the kernel after building"
   echo "	--symlink		Manage symlinks in /boot for installed images"
   echo "	--no-symlink		Do not manage symlinks"
   echo "	--no-ramdisk-modules	Don't copy any modules to the ramdisk"
   echo "	--all-ramdisk-modules	Copy all kernel modules to the ramdisk"
   echo "	--static		Build a static (monolithic kernel)."
   echo "  Kernel settings"
+  echo "        --extraversion=<e>      Override the EXTRAVERSION setting to change build name"
   echo "        --build-src=<dir>       Location of kernel sources (default is --kerneldir)"
   echo "        --build-dst=<dir>       Buid dir to use (default is --build-src)"
   echo "	--kerneldir=<dir>	Location of the kernel sources (deprecated)"
@@ -84,7 +83,6 @@ longusage() {
   echo "	--dmraid		Include DMRAID support"
   echo "	--multipath		Include Multipath support"
   echo "	--iscsi			Include iSCSI support"
-  echo "	--bootloader=grub	Add new kernel to GRUB configuration"
   echo "	--linuxrc=<file>	Specifies a user created linuxrc"
   echo "	--busybox-config=<file>	Specifies a user created busybox config"
   echo "	--genzimage		Make and install kernelz image (PowerPC)"
@@ -103,13 +101,6 @@ longusage() {
   echo "	--tempdir=<dir>		Location of Genkernel's temporary directory"
   echo "	--postclear		Clear all tmp files and caches after genkernel has run"
   echo "  Output Settings"
-  echo "        --fullname=<...>        Tag the kernel and ramdisk with a name --"
-  echo "                                this replaces the full name after 'kernel-'"
-  echo "                                and 'initramfs-'. Defaults to:"
-  echo "                                (--kernname value)-ARCH-KV[-EXTRAVERSION]"
-  echo "	--kernname=<...> 	Tag the kernel and ramdisk with a name:"
-  echo "				If not defined the option defaults to"
-  echo "				'genkernel'. (deprecated)"
   echo "	--initramfs-overlay=<dir>"
   echo "				Directory structure to include in the initramfs,"
   echo "				only available on 2.6 kernels"
@@ -284,10 +275,6 @@ parse_cmdline() {
 			CMD_MULTIPATH=1
 			print_info 2 "CMD_MULTIPATH: ${CMD_MULTIPATH}"
 			;;
-		--bootloader=*)
-			CMD_BOOTLOADER=`parse_opt "$*"`
-			print_info 2 "CMD_BOOTLOADER: ${CMD_BOOTLOADER}"
-			;;
 		--iscsi)
 			CMD_ISCSI=1
 			print_info 2 "CMD_ISCSI: ${CMD_ISCSI}"
@@ -391,14 +378,6 @@ parse_cmdline() {
 			SPLASH_RES=`parse_opt "$*"`
 			print_info 2 "SPLASH_RES: ${SPLASH_RES}"
 			;;
-		--install)
-			CMD_NOINSTALL=0
-			print_info 2 "CMD_NOINSTALL: ${CMD_NOINSTALL}"
-			;;
-		--no-install)
-			CMD_NOINSTALL=1
-			print_info 2 "CMD_NOINSTALL: ${CMD_NOINSTALL}"
-			;;
 		--no-ramdisk-modules)
 			CMD_NORAMDISKMODULES=1
 			print_info 2 "CMD_NORAMDISKMODULES: ${CMD_NORAMDISKMODULES}"
@@ -466,14 +445,6 @@ parse_cmdline() {
 		--cachedir=*)
 			CACHE_DIR=`parse_opt "$*"`
 			print_info 2 "CACHE_DIR: ${CACHE_DIR}"
-			;;
-		--kernname=*)
-			CMD_KERNNAME=`parse_opt "$*"`
-			print_info 2 "KERNNAME: ${CMD_KERNNAME}"
-			;;
-		--fullname=*)
-			CMD_FULLNAME=`parse_opt "$*"`
-			print_info 2 "FULLNAME: ${CMD_FULLNAME}"
 			;;
 		--symlink)
 			CMD_SYMLINK=1

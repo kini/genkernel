@@ -43,7 +43,6 @@ source ${GK_SHARE}/gen_compile.sh || gen_die "Could not read ${GK_SHARE}/gen_com
 source ${GK_SHARE}/gen_configkernel.sh || gen_die "Could not read ${GK_SHARE}/gen_configkernel.sh"
 source ${GK_SHARE}/gen_initramfs.sh || gen_die "Could not read ${GK_SHARE}/gen_initramfs.sh"
 source ${GK_SHARE}/gen_moddeps.sh || gen_die "Could not read ${GK_SHARE}/gen_moddeps.sh"
-source ${GK_SHARE}/gen_bootloader.sh || gen_die "Could not read ${GK_SHARE}/gen_bootloader.sh"
 
 TEMP=${TMPDIR}/$RANDOM.$RANDOM.$RANDOM.$$
 
@@ -130,43 +129,38 @@ dump_debugcache
 NORMAL=${BOLD} print_info 1 "Linux Kernel ${BOLD}${KV}${NORMAL} for ${BOLD}${ARCH}${NORMAL}..."
 
 # Check BOOTDIR is mounted
-if isTrue ${CMD_NOINSTALL}
+[[ -d ${BOOTDIR} ]] || gen_die "${BOOTDIR} is not a directory"
+
+if ! egrep -q "[[:space:]]${BOOTDIR}[[:space:]]" /proc/mounts
 then
-	isTrue ${MOUNTBOOT} && print_info 2 'Skipping automatic mount of boot'
-else
-	[[ -d ${BOOTDIR} ]] || gen_die "${BOOTDIR} is not a directory"
-	
-	if ! egrep -q "[[:space:]]${BOOTDIR}[[:space:]]" /proc/mounts
-	then
-		if egrep -q "^[^#].+[[:space:]]${BOOTDIR}[[:space:]]" /etc/fstab
-		then
-			if isTrue ${MOUNTBOOT}
-			then
-				if ! mount ${BOOTDIR}
-				then
-					print_warning 1 "${BOLD}WARNING${NORMAL}: Failed to mount ${BOOTDIR}!"
-					echo
-				else
-					print_info 1 "mount: ${BOOTDIR} mounted successfully!"
-				fi
-			else
-				print_warning 1 "${BOLD}WARNING${NORMAL}: No mounted ${BOOTDIR} partition detected!"
-				print_warning 1 "         Run ``mount ${BOOTDIR}`` to mount it!"
-				echo
-			fi
-		fi
-	elif isBootRO
+	if egrep -q "^[^#].+[[:space:]]${BOOTDIR}[[:space:]]" /etc/fstab
 	then
 		if isTrue ${MOUNTBOOT}
 		then
-			if ! mount -o remount,rw ${BOOTDIR}
+			if ! mount ${BOOTDIR}
 			then
-				print_warning 1 "${BOLD}WARNING${NORMAL}: Failed to remount ${BOOTDIR} RW!"
+				print_warning 1 "${BOLD}WARNING${NORMAL}: Failed to mount ${BOOTDIR}!"
 				echo
 			else
-				print_info 1 "mount: ${BOOTDIR} remounted read/write successfully!"
-				BOOTRW=1
+				print_info 1 "mount: ${BOOTDIR} mounted successfully!"
 			fi
+		else
+			print_warning 1 "${BOLD}WARNING${NORMAL}: No mounted ${BOOTDIR} partition detected!"
+			print_warning 1 "         Run ``mount ${BOOTDIR}`` to mount it!"
+			echo
+		fi
+	fi
+elif isBootRO
+then
+	if isTrue ${MOUNTBOOT}
+	then
+		if ! mount -o remount,rw ${BOOTDIR}
+		then
+			print_warning 1 "${BOLD}WARNING${NORMAL}: Failed to remount ${BOOTDIR} RW!"
+			echo
+		else
+			print_info 1 "mount: ${BOOTDIR} remounted read/write successfully!"
+			BOOTRW=1
 		fi
 	fi
 fi
@@ -193,7 +187,7 @@ fi
 #	echo
 #fi
 
-if [ ${BUILD_KERNEL} = '1' ]
+if [ "${BUILD_KERNEL}" = '1' ]
 then
 	# Configure kernel
 	config_kernel
@@ -255,10 +249,6 @@ fi
 
 if [ "${BUILD_KERNEL}" = '1' ]
 then
-	if ! isTrue "${CMD_NOINSTALL}"
-	then
-		set_bootloader
-	fi
 	print_info 1 ''
 	print_info 1 "Kernel compiled successfully!"
 	print_info 1 ''

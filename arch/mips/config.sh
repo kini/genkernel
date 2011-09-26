@@ -14,10 +14,6 @@ BUSYBOX=1
 DMRAID=0
 DISKLABEL=0
 
-# genkernel on mips is only used for LiveCDs && netboots.  Catalyst
-# will know where to get the kernels at.
-CMD_NOINSTALL=1
-
 #
 # Arch-specific defaults that can be overridden in the config file or on the
 # command line.

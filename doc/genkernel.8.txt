@@ -33,7 +33,7 @@ All that is needed to run genkernel is just `genkernel` with an
 action and any flags you might need:
 
 ------------------------------------------
-# genkernel --menuconfig --no-clean --no-install all
+# genkernel --menuconfig --no-clean 
 ------------------------------------------
 
 This would produce a kernel, asking you what how to configure it to
@@ -274,9 +274,6 @@ INITIALIZATION
 
 *--iscsi*::
     Include iSCSI support
-
-*--bootloader*=*grub*::
-    Add new kernel to GRUB configuration.
 
 *--linuxrc*=<file>::
     Use <file> for the linuxrc instead of the genkernel linuxrc.

@@ -23,6 +23,10 @@ get_KV() {
 		SUB=`grep ^SUBLEVEL\ \= ${KERNEL_SOURCE_DIR}/Makefile | awk '{ print $3 };'`
 		EXV=`grep ^EXTRAVERSION\ \= ${KERNEL_SOURCE_DIR}/Makefile | sed -e "s/EXTRAVERSION =//" -e "s/ //g" -e 's/\$([a-z]*)//gi'`
 	fi
+	if [ -n "${BUILD_EXTRAVERSION}" ]
+	then
+		EXV="${BUILD_EXTRAVERSION}"
+	fi
 
 	cd ${BUILD_SRC}
 	#compile_generic prepare kernel > /dev/null 2>&1
@@ -57,7 +61,7 @@ determine_real_args() {
 	set_config_with_override STRING LOGFILE              CMD_LOGFILE
         set_config_with_override STRING BUILD_SRC            CMD_BUILD_SRC           "${DEFAULT_KERNEL_SOURCE}"
         set_config_with_override STRING BUILD_DST            CMD_BUILD_DST           "${BUILD_SRC}"
-	set_config_with_override STRING KNAME                CMD_KERNNAME             "genkernel"
+        set_config_with_override STRING BUILD_EXTRAVERSION   CMD_EXTRAVERSION
 
 	set_config_with_override STRING MAKEOPTS             CMD_MAKEOPTS             "$DEFAULT_MAKEOPTS"
 	set_config_with_override STRING KERNEL_MAKE          CMD_KERNEL_MAKE          "$DEFAULT_KERNEL_MAKE"
@@ -132,16 +136,6 @@ determine_real_args() {
 	UNIONFS_FUSE_BINCACHE=`arch_replace "${UNIONFS_FUSE_BINCACHE}"`
 	GPG_BINCACHE=`arch_replace "${GPG_BINCACHE}"`
 
-	if [ -n "${CMD_BOOTLOADER}" ]
-	then
-		BOOTLOADER="${CMD_BOOTLOADER}"
-		if [ "${CMD_BOOTLOADER}" != "${CMD_BOOTLOADER/:/}" ]
-		then
-			BOOTFS=`echo "${CMD_BOOTLOADER}" | cut -f2- -d:`
-			BOOTLOADER=`echo "${CMD_BOOTLOADER}" | cut -f1 -d:`
-		fi
-	fi
-
 	if [ ! -d "${BUILD_SRC}" ]
 	then
 		gen_die "kernel source directory \"${BUILD_SRC}\" was not found!"
@@ -163,6 +157,4 @@ determine_real_args() {
 	fi
 
 	get_KV
-
-	set_config_with_override STRING FULLNAME		CMD_FULLNAME		"${KNAME}-${ARCH}-${KV}"
 }
