@@ -43,8 +43,6 @@ longusage() {
   echo "	--no-symlink		Do not manage symlinks"
   echo "	--no-ramdisk-modules	Don't copy any modules to the ramdisk"
   echo "	--all-ramdisk-modules	Copy all kernel modules to the ramdisk"
-  echo "	--callback=<...>	Run the specified arguments after the"
-  echo "				kernel and modules have been compiled"
   echo "	--static		Build a static (monolithic kernel)."
   echo "  Kernel settings"
   echo "        --build-src=<dir>       Location of kernel sources (default is --kerneldir)"
@@ -112,18 +110,6 @@ longusage() {
   echo "	--kernname=<...> 	Tag the kernel and ramdisk with a name:"
   echo "				If not defined the option defaults to"
   echo "				'genkernel'. (deprecated)"
-  echo "	--minkernpackage=<tbz2> File to output a .tar.bz2'd kernel and ramdisk:"
-  echo "				No modules outside of the ramdisk will be"
-  echo "				included..."
-  echo "	--modulespackage=<tbz2> File to output a .tar.bz2'd modules after the"
-  echo "				callbacks have run"
-  echo "	--kerncache=<tbz2> 	File to output a .tar.bz2'd kernel contents"
-  echo "				of /lib/modules/ and the kernel config"
-  echo "				NOTE: This is created before the callbacks"
-  echo "				are run!"
-  echo "	--no-kernel-sources	This option is only valid if kerncache is"
-  echo "				defined. If there is a valid kerncache no checks"
-  echo "				will be made against a kernel source tree"
   echo "	--initramfs-overlay=<dir>"
   echo "				Directory structure to include in the initramfs,"
   echo "				only available on 2.6 kernels"
@@ -421,10 +407,6 @@ parse_cmdline() {
 			CMD_ALLRAMDISKMODULES=1
 			print_info 2 "CMD_ALLRAMDISKMODULES: ${CMD_ALLRAMDISKMODULES}"
 			;;
-		--callback=*)
-			CMD_CALLBACK=`parse_opt "$*"`
-			print_info 2 "CMD_CALLBACK: ${CMD_CALLBACK}/$*"
-			;;
 		--static)
 			CMD_STATIC=1
 			print_info 2 "CMD_STATIC: ${CMD_STATIC}"
@@ -485,18 +467,6 @@ parse_cmdline() {
 			CACHE_DIR=`parse_opt "$*"`
 			print_info 2 "CACHE_DIR: ${CACHE_DIR}"
 			;;
-		--minkernpackage=*)
-			CMD_MINKERNPACKAGE=`parse_opt "$*"`
-			print_info 2 "MINKERNPACKAGE: ${CMD_MINKERNPACKAGE}"
-			;;
-		--modulespackage=*)
-			CMD_MODULESPACKAGE=`parse_opt "$*"`
-			print_info 2 "MODULESPACKAGE: ${CMD_MODULESPACKAGE}"
-			;;
-		--kerncache=*)
-			CMD_KERNCACHE=`parse_opt "$*"`
-			print_info 2 "KERNCACHE: ${CMD_KERNCACHE}"
-			;;
 		--kernname=*)
 			CMD_KERNNAME=`parse_opt "$*"`
 			print_info 2 "KERNNAME: ${CMD_KERNNAME}"
@@ -512,10 +482,6 @@ parse_cmdline() {
 		--no-symlink)
 			CMD_SYMLINK=0
 			print_info 2 "CMD_SYMLINK: ${CMD_SYMLINK}"
-			;;
-		--no-kernel-sources)
-			CMD_NO_KERNEL_SOURCES=1
-			print_info 2 "CMD_NO_KERNEL_SOURCES: ${CMD_NO_KERNEL_SOURCES}"
 			;;
 		--initramfs-overlay=*)
 			CMD_INITRAMFS_OVERLAY=`parse_opt "$*"`

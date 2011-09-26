@@ -146,10 +146,6 @@ KERNEL COMPILATION
 *--all-ramdisk-modules*::
     Copy all kernel modules to the initrd.
 
-*--callback*=<...>::
-    Run the specified arguments in the current environment after the
-    kernel and modules have been compiled.
-
 *--static*::
     This builds a monolithic kernel without any modules on any
     initial ramdisks.
@@ -350,23 +346,6 @@ OUTPUT SETTINGS
     KV is the version of the kernel from the kernel MAKEFILE with the 
     EXTRAVERSION from the kernel Makefile appended to it. 
    
-*--minkernpackage*=<tbz2>::
-    File to output a .tar.bz2'd kernel and initrd: no modules outside
-    of the initrd will be included...
-
-*--modulespackage*=<tbz2>::
-    File to output a .tar.bz2'd modules after the callbacks have run
-
-*--kerncache*=<tbz2>::
-    File to output a .tar.bz2'd kernel, contents of '/lib/modules/'
-    and the kernel config.  NOTE: This is created before the callbacks
-    are run.
-
-*--no-kernel-sources*=<tbz2>::
-    This option is only valid if kerncache is defined If there is a
-    valid kerncache no checks will be made against a kernel source
-    tree.
-
 *--initramfs-overlay*=<dir>::
     Directory structure to include in the initramfs, only available
     on >=2.6 kernels

@@ -194,13 +194,7 @@ fi
 #	echo
 #fi
 
-KERNCACHE_IS_VALID=0
-if [ "${KERNCACHE}" != "" ] 
-then
-    gen_kerncache_is_valid
-fi
-
-if [ ${BUILD_KERNEL} = '1' -a "${KERNCACHE_IS_VALID}" = '0' ]
+if [ ${BUILD_KERNEL} = '1' ]
 then
 	# Configure kernel
 	config_kernel
@@ -230,53 +224,6 @@ then
 	fi
 fi
 
-if ! isTrue "${CMD_NOINSTALL}"
-then
-	if [ "${KERNCACHE}" != "" -a "${KERNCACHE_IS_VALID}" != "0" ] 
-	then
-		gen_kerncache_extract_kernel
-	fi
-fi
-
-if [ "${KERNCACHE}" != "" -a "${KERNCACHE_IS_VALID}" != "0" ] 
-then
-	[ "${BUILD_STATIC}" = '0' ] && gen_kerncache_extract_modules
-	gen_kerncache_extract_config
-fi
-
-# Run callback
-if [ "${CMD_CALLBACK}" != "" ]
-then
-	print_info 1 "" 1 0
-	print_info 1 "Preparing to run callback: \"${CMD_CALLBACK}\"" 0
-
-	CALLBACK_ESCAPE=0
-	CALLBACK_COUNT=0
-
-	trap "CALLBACK_ESCAPE=1" TERM KILL INT QUIT ABRT
-	while [[ "${CALLBACK_ESCAPE}" = '0' && ${CALLBACK_COUNT} -lt 5 ]]
-	do
-		sleep 1; echo -n '.';
-		let CALLBACK_COUNT=${CALLBACK_COUNT}+1
-	done
-
-	if [ "${CALLBACK_ESCAPE}" = '0' ]
-	then
-		echo
-		echo
-		eval ${CMD_CALLBACK} | tee -a ${LOGFILE}
-		CMD_STATUS="${PIPESTATUS[0]}"
-		echo
-		print_info 1 "<<< Callback exit status: ${CMD_STATUS}"
-		[ "${CMD_STATUS}" != '0' ] && gen_die '--callback failed!'
-	else
-		echo
-		print_info 1 ">>> Callback cancelled..."
-	fi
-	trap - TERM KILL INT QUIT ABRT
-	print_info 1 "" 1 0
-fi
-
 if [ "${BUILD_RAMDISK}" = '1' ]
 then
 	[ "${DISKLABEL}" = '1' ] && compile_e2fsprogs
@@ -298,15 +245,11 @@ else
 	print_info 1 'initrd: Not building since only the kernel was requested...'
 fi
 
-if isTrue "${INTEGRATED_INITRAMFS}" #|| [ "${BUILD_KERNEL}" = '1' -a "${KERNCACHE_IS_VALID}" == "0" ]
+if isTrue "${INTEGRATED_INITRAMFS}" 
 then
 	# We build the kernel a second time to include the initramfs
 	compile_kernel
 fi
-
-[ "${KERNCACHE}" != "" ] && gen_kerncache
-[ "${MINKERNPACKAGE}" != '' ] && gen_minkernpackage
-[ "${MODULESPACKAGE}" != '' ] && gen_modulespackage
 
 # Clean up...
 [ -n "${CTEMP}" ] && rm -rf "${TEMP}"
@@ -361,10 +304,6 @@ fi
 [ "${BOOTRW}" != '' ] && mount -o remount,ro ${BOOTDIR}
 
 echo
-print_info 1 'Do NOT report kernel bugs as genkernel bugs unless your bug'
-print_info 1 'is about the default genkernel configuration...'
-print_info 1 ''
-print_info 1 'Make sure you have the latest ~arch genkernel before reporting bugs.'
 
 #Final Cleanup
 cleanup
