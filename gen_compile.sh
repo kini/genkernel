@@ -350,6 +350,7 @@ compile_kernel() {
 
 	copy_image "${tmp_kernel_binary}"
 	copy_image "${BUILD_DST}/System.map"
+	copy_image "${BUILD_DST}/.config" config
 	if isTrue "${GENZIMAGE}"
 	then
 		copy_image "${tmp_kernel_binary2}"

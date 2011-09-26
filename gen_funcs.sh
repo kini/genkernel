@@ -270,10 +270,16 @@ clear_tmpdir()
 #
 # Arguments:
 #     $1  Source image.  Fully qualified path name of the source image.
+#     $2  Optional destination filename.
 #
 copy_image() {
 	install -d ${BOOTDIR}/${KV}
-	local dest="${BOOTDIR}/${KV}/${1##*/}"
+	if [ "$2" = "" ]
+	then
+		local dest="${BOOTDIR}/${KV}/${1##*/}"
+	else
+		local dest="${BOOTDIR}/${KV}/${2}"
+	fi
 	if [ -e "${dest}" ]; then
 		print_info 5 "  Backing up existing ${dest} to ${dest}.old"
 		# back up existing file...
